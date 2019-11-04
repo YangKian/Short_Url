@@ -1,12 +1,15 @@
 package lru
 
+import . "MyProject/Short_Url/models"
+
 type Node struct {
-	key, value interface{}
+	key        string
+	value      UrlCode
 	prev, next *Node
 }
 
 type LRUCache struct {
-	cache map[interface{}]*Node
+	cache map[string]*Node
 	head  *Node
 }
 
@@ -23,7 +26,7 @@ func Constructors(capacity int) LRUCache { //初始化LRUCache
 
 	return LRUCache{
 		head:  head,
-		cache: make(map[interface{}]*Node, capacity),
+		cache: make(map[string]*Node, capacity),
 	}
 }
 
@@ -44,15 +47,26 @@ func (this *LRUCache) MoveToFront(cur *Node) {
 	cur.prev = this.head
 }
 
-func (this *LRUCache) Get(key int) int {
+func (this *LRUCache) Get(key string) (UrlCode, error) {
 	if node, ok := this.cache[key]; ok { //如果当前节点存在，则取出节点，并将节点位置更新至头结点的前面
 		this.MoveToFront(node)
-		return this.head.next.value.(int) //返回的是head.next.value，因为最新的节点在头结点前面
+		return this.head.next.value, nil //返回的是head.next.value，因为最新的节点在头结点前面
 	}
-	return -1
+
+	//如果当前节点不存在，则到数据库中进行查询
+	var urlCode UrlCode
+
+	res, err := urlCode.GetByUrl(key)
+	if err != nil { //如果数据库查询出错或者数据库中也没有存储，则直接返回
+		return nil, err
+	}
+
+	//查出的结果加入缓存中
+	this.Put(url, res)
+	return res, nil
 }
 
-func (this *LRUCache) Put(key int, value int) {
+func (this *LRUCache) Put(key string, value UrlCode) {
 	if node, ok := this.cache[key]; ok { //如果当前节点存在，则更新节点的value和位置
 		node.value = value
 		this.MoveToFront(node)

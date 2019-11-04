@@ -20,6 +20,7 @@ type UrlCode struct {
 //添加一个url
 func (u UrlCode) AddUrl(url string, userId int) (int, error) {
 	urlCode := UrlCode{
+		Url:    url,
 		MD5:    utils.MD5(url),
 		Code:   "",
 		UserID: userId,
@@ -33,15 +34,26 @@ func (u UrlCode) AddUrl(url string, userId int) (int, error) {
 	return urlCode.ID, nil
 }
 
-//TODO: 返回值设什么好？
-func (u UrlCode) GetByCode(code string) UrlCode {
+//根据code查询
+func (u UrlCode) GetByCode(code string) (UrlCode, error) {
 	var res UrlCode
 	if err := db.Where("code = ?", code).First(&res).Error; err != nil {
 		fmt.Printf("GetByCode failed, err: %v\n", err)
-		return nil
+		return nil, err
 	}
 
-	return res
+	return res, nil
+}
+
+//根据url查询
+func (u UrlCode) GetByUrl(url string) (UrlCode, error) {
+	var res UrlCode
+	if err := db.Where("url = ?", url).First(&res).Error; err != nil {
+		fmt.Printf("GetByUrl failed, err: %v\n", err)
+		return nil, err
+	}
+
+	return res, nil
 }
 
 func (u UrlCode) UpdateCode(id int, code string) error {
