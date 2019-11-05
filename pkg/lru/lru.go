@@ -4,7 +4,7 @@ import . "MyProject/Short_Url/models"
 
 type Node struct {
 	key        string
-	value      UrlCode
+	value      string
 	prev, next *Node
 }
 
@@ -47,7 +47,7 @@ func (this *LRUCache) MoveToFront(cur *Node) {
 	cur.prev = this.head
 }
 
-func (this *LRUCache) Get(key string) (UrlCode, error) {
+func (this *LRUCache) Get(key string) (string, error) {
 	if node, ok := this.cache[key]; ok { //如果当前节点存在，则取出节点，并将节点位置更新至头结点的前面
 		this.MoveToFront(node)
 		return this.head.next.value, nil //返回的是head.next.value，因为最新的节点在头结点前面
@@ -62,11 +62,11 @@ func (this *LRUCache) Get(key string) (UrlCode, error) {
 	}
 
 	//查出的结果加入缓存中
-	this.Put(url, res)
-	return res, nil
+	this.Put(url, res.Code)
+	return res.Code, nil
 }
 
-func (this *LRUCache) Put(key string, value UrlCode) {
+func (this *LRUCache) Put(key string, value string) {
 	if node, ok := this.cache[key]; ok { //如果当前节点存在，则更新节点的value和位置
 		node.value = value
 		this.MoveToFront(node)
