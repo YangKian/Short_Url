@@ -12,7 +12,7 @@ type Auth struct {
 func CheckAuth(username, password string) (bool, error) {
 	var auth Auth
 
-	if err := db.Select("id").Where(Auth{Username: username, Password: password}).First(&auth).Error; err != nill && err != gorm.ErrRecordNotFound {
+	if err := db.Select("id").Where(Auth{Username: username, Password: password}).First(&auth).Error; err != nil && err != gorm.ErrRecordNotFound {
 		return false, err
 	}
 

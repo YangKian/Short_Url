@@ -10,11 +10,11 @@ import (
 type UrlCode struct {
 	Model
 
-	MD5    string
-	Code   string
-	Url    string
-	Click  int
-	UserId int
+	MD5    string `gorm:"md5"`
+	Code   string `gorm:"code"`
+	Url    string `gorm:"url"`
+	Click  int `gorm:"clikc"`
+	UserId int `gorm:"user_id"`
 }
 
 //添加一个url
@@ -23,7 +23,7 @@ func (u UrlCode) AddUrl(url string, userId int) (int, error) {
 		Url:    url,
 		MD5:    utils.MD5(url),
 		Code:   "",
-		UserID: userId,
+		UserId: userId,
 	}
 
 	if err := db.Create(&urlCode).Error; err != nil {
@@ -39,7 +39,7 @@ func (u UrlCode) GetByCode(code string) (UrlCode, error) {
 	var res UrlCode
 	if err := db.Where("code = ?", code).First(&res).Error; err != nil {
 		fmt.Printf("GetByCode failed, err: %v\n", err)
-		return nil, err
+		return UrlCode{}, err
 	}
 
 	return res, nil
@@ -50,18 +50,20 @@ func (u UrlCode) GetByUrl(url string) (UrlCode, error) {
 	var res UrlCode
 	if err := db.Where("url = ?", url).First(&res).Error; err != nil {
 		fmt.Printf("GetByUrl failed, err: %v\n", err)
-		return nil, err
+		return UrlCode{}, err
 	}
 
 	return res, nil
 }
 
 func (u UrlCode) UpdateCode(id int, code string) error {
+	fmt.Printf("[UpdateCode]: update code, id: %s, code: %s\n", id, code)
 	db.Table("url_codes").Where("id = ?", id).Update("code", code)
 	if db.Error != nil {
 		fmt.Printf("url update faile, err: %v\n", db.Error)
 		return db.Error
 	}
+	fmt.Printf("url update success, code: %v\n", code)
 	return nil
 }
 

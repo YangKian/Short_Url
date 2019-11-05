@@ -7,6 +7,15 @@ import (
 	"github.com/go-ini/ini"
 )
 
+type Server struct {
+	RunMode      string
+	HttpPort     int
+	ReadTimeout  time.Duration
+	WriteTimeout time.Duration
+}
+
+var ServerSetting = &Server{}
+
 type Database struct {
 	Type     string
 	User     string
@@ -17,28 +26,32 @@ type Database struct {
 
 var DatabaseSetting = &Database{}
 
-type Redis struct {
-	Host        string
-	Password    string
-	MaxIdle     int
-	MaxActive   int
-	IdleTimeout time.Duration
-}
+// type Redis struct {
+// 	Host        string
+// Password    string
+// MaxIdle     int
+// MaxActive   int
+// IdleTimeout time.Duration
+// }
 
-var RedisSetting = &Redis{}
+// var RedisSetting = &Redis{}
 
 var cfg *ini.File
 
 func Setup() {
 	var err error
-	if Cfg, err = ini.Load("conf/app.ini"); err != nil {
+	if cfg, err = ini.Load("conf/app.ini"); err != nil {
 		log.Fatalf("Fail to parse 'conf/app.ini': %v\n", err)
 	}
 
 	mapTo("database", DatabaseSetting)
-	mapTo("redis", RedisSetting)
+	mapTo("server", ServerSetting)
 
-	RedisSetting.IdleTimeout = RedisSetting.IdleTimeout * time.Second
+	ServerSetting.ReadTimeout = ServerSetting.ReadTimeout * time.Second
+	ServerSetting.WriteTimeout = ServerSetting.WriteTimeout * time.Second
+	// mapTo("redis", RedisSetting)
+
+	// RedisSetting.IdleTimeout = RedisSetting.IdleTimeout * time.Second
 }
 
 func mapTo(section string, v interface{}) {

@@ -1,23 +1,28 @@
 package main
 
 import (
+	"MyProject/Short_Url/models"
+	"MyProject/Short_Url/pkg/setting"
+	"MyProject/Short_Url/router"
 	"fmt"
 	"log"
-	"mylearning/LearningByCopy/ginExample/routers"
-	"mylearning/LearningByCopy/go-gin-example/pkg/setting"
+
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func init() {
-	log.SetFlags(log.Ldate | log.Lshortfile)
+	// log.SetFlags(log.Ldate | log.Lshortfile)
+	setting.Setup()
+	models.Start()
+
 }
 
 func main() {
 	gin.SetMode(setting.ServerSetting.RunMode)
 
-	routersInit := routers.InitRouter()
+	routersInit := router.InitRouter()
 	readTimeout := setting.ServerSetting.ReadTimeout
 	writeTimeout := setting.ServerSetting.WriteTimeout
 	endPoint := fmt.Sprintf(":%d", setting.ServerSetting.HttpPort)

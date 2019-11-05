@@ -1,4 +1,4 @@
-package routers
+package router
 
 import (
 	"MyProject/Short_Url/pkg/service"
@@ -11,10 +11,13 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
+	// r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	urlService := service.NewShortUrlService()
 	api := r.Group("/api/v1")
 	{
 		api.POST("/create", urlService.Create)
 		// api.POST("/get", Shorturl.Get)
 	}
+	return r
 }

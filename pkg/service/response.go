@@ -1,5 +1,4 @@
-package services
-
+package service
 import (
 	"MyProject/Short_Url/contants"
 	"net/http"

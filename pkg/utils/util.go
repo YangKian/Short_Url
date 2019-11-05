@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"MyProject/Short_Url/models"
 	"crypto/md5"
 	"encoding/hex"
 )
@@ -9,7 +8,7 @@ import (
 func MD5(str string) string {
 	md5String := md5.New()
 	md5String.Write([]byte(str))
-	return hex.EncodeToString(h.Sum(nil))
+	return hex.EncodeToString(md5String.Sum(nil))
 	// temp := ""
 	// var sum, sumToAdd int
 	// i := 0
@@ -50,20 +49,4 @@ func Transport(num int) string {
 		num /= 62
 	}
 	return res
-}
-
-func CodeGenerator(url string, userId int) (string, error) {
-	urlCode := models.UrlCode
-	urlId, err := urlCode.AddUrl(url, userId)
-	if err != nil {
-		return "", err
-	}
-
-	shortCode := Transport(urlId)
-
-	err = urlCode.UpdateCode(urlId, shortCode)
-	if err != nil {
-		return "", err
-	}
-	return shortCode, nil
 }

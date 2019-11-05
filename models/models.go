@@ -7,15 +7,16 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 var db *gorm.DB
 
 type Model struct {
 	ID         int `gorm:"primary_key" json:"id"`
-	CreatedOn  int `json:"created_on"`
-	ModifiedOn int `json:"modified_on"`
-	DeletedOn  int `json:"deleted_on"`
+	CreatedOn  int `json:"created_on" gorm:"created_on"`
+	ModifiedOn int `json:"modified_on" gorm:"modified_on"`
+	DeletedOn  int `json:"deleted_on" gorm:"deleted_on"`
 }
 
 func Start() {
@@ -45,11 +46,17 @@ func updateForCreate(scope *gorm.Scope) {
 	if !scope.HasError() {
 		nowTime := time.Now().Unix()
 		if createTime, ok := scope.FieldByName("CreatedOn"); ok {
-			createTime.Set(nowTime)
+			err := createTime.Set(nowTime)
+			if err != nil {
+				fmt.Println("创建时间添加失败")
+			}
 		}
 
 		if modifyTime, ok := scope.FieldByName("ModifiedOn"); ok {
-			modifyTime.Set(nowTime)
+			err := modifyTime.Set(nowTime)
+			if err != nil {
+				fmt.Println("修改时间添加失败")
+			}
 		}
 	}
 }
@@ -57,7 +64,10 @@ func updateForCreate(scope *gorm.Scope) {
 //TODO:确认此处的逻辑
 func updateForUpdate(scope *gorm.Scope) {
 	if _, ok := scope.Get("gorm:update_column"); !ok {
-		scope.SetColumn("ModifiedOn", time.Now().Unix())
+		err := scope.SetColumn("ModifiedOn", time.Now().Unix())
+		if err != nil {
+			fmt.Println("修改时间添加失败")
+		}
 	}
 }
 

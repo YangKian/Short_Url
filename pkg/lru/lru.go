@@ -13,18 +13,18 @@ type LRUCache struct {
 	head  *Node
 }
 
-func Constructors(capacity int) LRUCache { //初始化LRUCache
-	head := &Node{-1, -1, nil, nil}
+func Constructors(capacity int) *LRUCache { //初始化LRUCache
+	head := &Node{"", "", nil, nil}
 	node := head
 	for i := 0; i < capacity-1; i++ {
-		node.next = &Node{-1, -1, node, nil} //注意prev节点应该指向前一个node
+		node.next = &Node{"", "", node, nil} //注意prev节点应该指向前一个node
 		node = node.next
 	}
 	//首尾相连，构造环
 	node.next = head
 	head.prev = node
 
-	return LRUCache{
+	return &LRUCache{
 		head:  head,
 		cache: make(map[string]*Node, capacity),
 	}
@@ -58,11 +58,11 @@ func (this *LRUCache) Get(key string) (string, error) {
 
 	res, err := urlCode.GetByUrl(key)
 	if err != nil { //如果数据库查询出错或者数据库中也没有存储，则直接返回
-		return nil, err
+		return "", err
 	}
 
 	//查出的结果加入缓存中
-	this.Put(url, res.Code)
+	this.Put(res.Url, res.Code)
 	return res.Code, nil
 }
 
@@ -71,7 +71,7 @@ func (this *LRUCache) Put(key string, value string) {
 		node.value = value
 		this.MoveToFront(node)
 	} else { //如果节点不存在，则将节点插入到头结点的位置
-		if this.head.value != -1 { //如果头结点的值不等于 -1，说明该节点上已经有值，需先删除节点
+		if this.head.value != "" { //如果头结点的值不等于 -1，说明该节点上已经有值，需先删除节点
 			delete(this.cache, this.head.key)
 		}
 
