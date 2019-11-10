@@ -36,7 +36,7 @@ func MD5(str string) string {
 
 //将数字从十进制转为62进制
 func Transport(num int) string {
-	bytes := []byte("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+	bytes := []byte("47N9ABdefghC0123DEF8GHuIJpKPQjRSToUWXYZabciklOmnqrst56vwxVyzLM")
 
 	var res string
 

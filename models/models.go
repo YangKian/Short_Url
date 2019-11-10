@@ -42,20 +42,21 @@ func Start() {
 }
 
 //创建时，同时添加创建时间和修改时间
+//TODO:修改时提示modifyTime err
 func updateForCreate(scope *gorm.Scope) {
 	if !scope.HasError() {
 		nowTime := time.Now().Unix()
 		if createTime, ok := scope.FieldByName("CreatedOn"); ok {
 			err := createTime.Set(nowTime)
 			if err != nil {
-				fmt.Println("创建时间添加失败")
+				fmt.Printf("[updateForCreate]: createTime err: %s\n", err)
 			}
 		}
 
 		if modifyTime, ok := scope.FieldByName("ModifiedOn"); ok {
 			err := modifyTime.Set(nowTime)
 			if err != nil {
-				fmt.Println("修改时间添加失败")
+				fmt.Printf("[updateForCreate]: modifyTime err: %s\n", err)
 			}
 		}
 	}
@@ -66,7 +67,7 @@ func updateForUpdate(scope *gorm.Scope) {
 	if _, ok := scope.Get("gorm:update_column"); !ok {
 		err := scope.SetColumn("ModifiedOn", time.Now().Unix())
 		if err != nil {
-			fmt.Println("修改时间添加失败")
+			fmt.Printf("[updateForUpdate]: modifyTime err: %s\n", err)
 		}
 	}
 }

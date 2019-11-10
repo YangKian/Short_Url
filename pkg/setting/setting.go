@@ -38,7 +38,7 @@ var DatabaseSetting = &Database{}
 
 var cfg *ini.File
 
-func Setup() {
+func Start() {
 	var err error
 	if cfg, err = ini.Load("conf/app.ini"); err != nil {
 		log.Fatalf("Fail to parse 'conf/app.ini': %v\n", err)

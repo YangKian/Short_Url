@@ -14,7 +14,7 @@ import (
 
 func init() {
 	// log.SetFlags(log.Ldate | log.Lshortfile)
-	setting.Setup()
+	setting.Start()
 	models.Start()
 
 }

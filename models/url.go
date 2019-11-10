@@ -58,7 +58,7 @@ func (u UrlCode) GetByUrl(url string) (UrlCode, error) {
 
 func (u UrlCode) UpdateCode(id int, code string) error {
 	fmt.Printf("[UpdateCode]: update code, id: %s, code: %s\n", id, code)
-	db.Table("url_codes").Where("id = ?", id).Update("code", code)
+	db.Table("url_code").Where("id = ?", id).Update("code", code)
 	if db.Error != nil {
 		fmt.Printf("url update faile, err: %v\n", db.Error)
 		return db.Error

@@ -1,4 +1,5 @@
 package service
+
 import (
 	"MyProject/Short_Url/contants"
 	"net/http"
@@ -6,20 +7,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Response struct{}
+//type Response struct{}
 
-func (r *Response) success(c *gin.Context, data map[string]interface{}) {
+func success(c *gin.Context, code int, data interface{}) {
 	c.JSON(http.StatusOK, gin.H{
-		"code": contants.SUCCESS,
-		"msg":  "ok",
+		"code": code,
+		"msg":  contants.MsgGeter(code),
 		"data": data,
 	})
 }
 
-func (r *Response) fail(c *gin.Context, code int, msg string) {
-	c.AbortWithStatusJSON(http.StatusOK, gin.H{
+func innerFail(c *gin.Context, code int) {
+	c.AbortWithStatusJSON(http.StatusBadGateway, gin.H{
 		"code": code,
-		"msg":  msg,
+		"msg":  contants.MsgGeter(code),
+		"data": "",
+	})
+}
+
+func requestFail(c *gin.Context, code int) {
+	c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+		"code": code,
+		"msg":  contants.MsgGeter(code),
 		"data": "",
 	})
 }
