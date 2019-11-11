@@ -32,3 +32,7 @@ func requestFail(c *gin.Context, code int) {
 		"data": "",
 	})
 }
+
+func redirect(c *gin.Context, path string) {
+	c.Redirect(http.StatusFound, path)
+}

@@ -12,14 +12,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-const (
-	ORIGINURL = 1
-	SHORTURL = 2
-)
+
 
 type Service interface {
 	SingleCreate(*gin.Context)
 	MultiCreate(*gin.Context)
+	TransToUrl(*gin.Context)
+
 }
 
 type shortUrlService struct {
@@ -110,7 +109,7 @@ func (s *shortUrlService) MultiCreate(c *gin.Context) {
 
 func (s *shortUrlService) getShortCode(c *gin.Context, url string) {
 	s.lock.RLock()
-	res, err := s.urlCache.Get(url)
+	res, err := s.urlCache.Get(url, contants.ORIGINURL)
 	s.lock.RUnlock()
 
 	if err != nil {
@@ -169,12 +168,26 @@ func codeGenerator(url string, userId int) (string, error) {
 
 func (s *shortUrlService) TransToUrl(c *gin.Context) {
 	shortUrl := c.PostForm("shortUrl")
-
 	fmt.Printf("[TransToUrl]: get shortUrl from gin context: %s\n", shortUrl)
-	url, err := s.shortCache.Get(shortUrl)
-	if err != nil {
 
+	s.lock.RLock()
+	url, err := s.shortCache.Get(shortUrl, contants.SHORTURL)
+	s.lock.RUnlock()
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			code := contants.NOTFOUND
+			requestFail(c, code)
+			return
+		}
+
+		code := contants.REQUEST_ERROR
+		requestFail(c, code)
+		return
 	}
+
+	redirect(c, url)
+	fmt.Printf("[TransToUrl]: get url success, url: %s\n", url)
+	return
 }
 
 

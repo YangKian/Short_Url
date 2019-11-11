@@ -19,7 +19,7 @@ func InitRouter() *gin.Engine {
 	api := r.Group("/api/v1")
 	{
 		api.POST("/create", urlService.SingleCreate)
-		api.POST("/creates", urlService.MultiCreate)
+		api.POST("/restore", urlService.TransToUrl)
 		// api.POST("/get", Shorturl.Get)
 	}
 	return r

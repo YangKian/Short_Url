@@ -12,3 +12,8 @@ const (
 	DBERROER               = 50001
 	CREATE_SHORT_URL_ERROR = 50002
 )
+
+const (
+	ORIGINURL = 1
+	SHORTURL = 2
+)

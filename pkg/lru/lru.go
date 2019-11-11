@@ -1,6 +1,10 @@
 package lru
 
-import . "MyProject/Short_Url/models"
+import (
+	"MyProject/Short_Url/contants"
+	. "MyProject/Short_Url/models"
+	"errors"
+)
 
 type Node struct {
 	key        string
@@ -47,23 +51,35 @@ func (this *LRUCache) MoveToFront(cur *Node) {
 	cur.prev = this.head
 }
 
-func (this *LRUCache) Get(key string) (string, error) {
+func (this *LRUCache) Get(key string, flag int) (string, error) {
 	if node, ok := this.cache[key]; ok { //如果当前节点存在，则取出节点，并将节点位置更新至头结点的前面
 		this.MoveToFront(node)
 		return this.head.next.value, nil //返回的是head.next.value，因为最新的节点在头结点前面
 	}
 
-	//如果当前节点不存在，则到数据库中进行查询
-	var urlCode UrlCode
+	switch flag {
+	case contants.ORIGINURL :
+		//如果当前节点不存在，则到数据库中进行查询
+		var urlCode UrlCode
+		res, err := urlCode.GetByUrl(key)
+		if err != nil { //如果数据库查询出错或者数据库中也没有存储，则直接返回
+			return "", err
+		}
+		//查出的结果加入缓存中
+		this.Put(res.Url, res.Code)
+		return res.Code, nil
 
-	res, err := urlCode.GetByUrl(key)
-	if err != nil { //如果数据库查询出错或者数据库中也没有存储，则直接返回
-		return "", err
+	case contants.SHORTURL :
+		var shortUrl UrlCode
+		res, err := shortUrl.GetByCode(key)
+		if err != nil {
+			return "", err
+		}
+		this.Put(res.Code, res.Url)
+		return res.Url, nil
 	}
 
-	//查出的结果加入缓存中
-	this.Put(res.Url, res.Code)
-	return res.Code, nil
+	return "", errors.New("输入既不是url也不是短地址")
 }
 
 func (this *LRUCache) Put(key string, value string) {
