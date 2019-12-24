@@ -1,9 +1,10 @@
 package lru
 
 import (
-	"MyProject/Short_Url/contants"
-	. "MyProject/Short_Url/models"
 	"errors"
+	"fmt"
+	"shortUrl/constants"
+	. "shortUrl/models"
 )
 
 type Node struct {
@@ -17,7 +18,8 @@ type LRUCache struct {
 	head  *Node
 }
 
-func Constructors(capacity int) *LRUCache { //初始化LRUCache
+//初始化LRUCache
+func Constructors(capacity int) *LRUCache {
 	head := &Node{"", "", nil, nil}
 	node := head
 	for i := 0; i < capacity-1; i++ {
@@ -34,9 +36,9 @@ func Constructors(capacity int) *LRUCache { //初始化LRUCache
 	}
 }
 
-func (this *LRUCache) MoveToFront(cur *Node) {
-	if cur == this.head { //如果带移动的节点已经是头结点，则将头结点指向前一个节点，即指向最长时间没有更新过的那个节点
-		this.head = this.head.prev
+func (lc *LRUCache) MoveToFront(cur *Node) {
+	if cur == lc.head { //如果带移动的节点已经是头结点，则将头结点指向前一个节点，即指向最长时间没有更新过的那个节点
+		lc.head = lc.head.prev
 		return
 	}
 
@@ -45,20 +47,21 @@ func (this *LRUCache) MoveToFront(cur *Node) {
 	cur.next.prev = cur.prev
 
 	//将待更新节点放到头结点前面
-	cur.next = this.head.next
+	cur.next = lc.head.next
 	cur.next.prev = cur
-	this.head.next = cur
-	cur.prev = this.head
+	lc.head.next = cur
+	cur.prev = lc.head
 }
 
-func (this *LRUCache) Get(key string, flag int) (string, error) {
-	if node, ok := this.cache[key]; ok { //如果当前节点存在，则取出节点，并将节点位置更新至头结点的前面
-		this.MoveToFront(node)
-		return this.head.next.value, nil //返回的是head.next.value，因为最新的节点在头结点前面
+func (lc *LRUCache) Get(key string, flag int) (string, error) {
+	if node, ok := lc.cache[key]; ok { //如果当前节点存在，则取出节点，并将节点位置更新至头结点的前面
+		fmt.Println("查询到缓存")
+		lc.MoveToFront(node)
+		return lc.head.next.value, nil //返回的是head.next.value，因为最新的节点在头结点前面
 	}
 
 	switch flag {
-	case contants.ORIGINURL :
+	case constants.ORIGINURL:
 		//如果当前节点不存在，则到数据库中进行查询
 		var urlCode UrlCode
 		res, err := urlCode.GetByUrl(key)
@@ -66,37 +69,37 @@ func (this *LRUCache) Get(key string, flag int) (string, error) {
 			return "", err
 		}
 		//查出的结果加入缓存中
-		this.Put(res.Url, res.Code)
+		lc.Put(res.Url, res.Code)
 		return res.Code, nil
 
-	case contants.SHORTURL :
+	case constants.SHORTURL:
 		var shortUrl UrlCode
 		res, err := shortUrl.GetByCode(key)
 		if err != nil {
 			return "", err
 		}
-		this.Put(res.Code, res.Url)
+		lc.Put(res.Code, res.Url)
 		return res.Url, nil
 	}
 
 	return "", errors.New("输入既不是url也不是短地址")
 }
 
-func (this *LRUCache) Put(key string, value string) {
-	if node, ok := this.cache[key]; ok { //如果当前节点存在，则更新节点的value和位置
+func (lc *LRUCache) Put(key string, value string) {
+	if node, ok := lc.cache[key]; ok { //如果当前节点存在，则更新节点的value和位置
 		node.value = value
-		this.MoveToFront(node)
+		lc.MoveToFront(node)
 	} else { //如果节点不存在，则将节点插入到头结点的位置
-		if this.head.value != "" { //如果头结点的值不等于 -1，说明该节点上已经有值，需先删除节点
-			delete(this.cache, this.head.key)
+		if lc.head.value != "" { //如果头结点的值不等于 -1，说明该节点上已经有值，需先删除节点
+			delete(lc.cache, lc.head.key)
 		}
 
 		//设置头结点的值为插入节点的值
-		this.head.key = key
-		this.head.value = value
+		lc.head.key = key
+		lc.head.value = value
 		//更新cache
-		this.cache[key] = this.head
+		lc.cache[key] = lc.head
 		//头结点前移指向最久没有更新的那个节点
-		this.head = this.head.prev
+		lc.head = lc.head.prev
 	}
 }

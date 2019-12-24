@@ -1,11 +1,8 @@
 package router
 
 import (
-	"MyProject/Short_Url/pkg/service"
-	//ginSwagger "github.com/swaggo/gin-swagger"
-	//"github.com/swaggo/gin-swagger/swaggerFiles"
-
 	"github.com/gin-gonic/gin"
+	"shortUrl/service"
 )
 
 func InitRouter() *gin.Engine {
@@ -13,14 +10,16 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
-	//r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
 	urlService := service.NewShortUrlService()
-	api := r.Group("/api/v1")
+	api := r.Group("/")
 	{
-		api.POST("/create", urlService.SingleCreate)
-		api.POST("/restore", urlService.TransToUrl)
-		// api.POST("/get", Shorturl.Get)
+		api.POST("/url", urlService.SingleCreate) //传入url生成shortUrl
+		api.POST("/shortUrl", urlService.TransToUrl) //传入shortUrl返回url
+	}
+
+	detecting := r.Group("/detect")
+	{
+		detecting.GET("/health", service.HealthCheck)
 	}
 	return r
 }

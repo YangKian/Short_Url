@@ -10,8 +10,9 @@ import (
 type Server struct {
 	RunMode      string
 	HttpPort     int
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
+	HeartBeatCheckTimer time.Duration
+	ReadTimeoutTimer time.Duration
+	WriteTimeoutTimer time.Duration
 }
 
 var ServerSetting = &Server{}
@@ -26,16 +27,6 @@ type Database struct {
 
 var DatabaseSetting = &Database{}
 
-// type Redis struct {
-// 	Host        string
-// Password    string
-// MaxIdle     int
-// MaxActive   int
-// IdleTimeout time.Duration
-// }
-
-// var RedisSetting = &Redis{}
-
 var cfg *ini.File
 
 func Start() {
@@ -46,12 +37,6 @@ func Start() {
 
 	mapTo("database", DatabaseSetting)
 	mapTo("server", ServerSetting)
-
-	ServerSetting.ReadTimeout = ServerSetting.ReadTimeout * time.Second
-	ServerSetting.WriteTimeout = ServerSetting.WriteTimeout * time.Second
-	// mapTo("redis", RedisSetting)
-
-	// RedisSetting.IdleTimeout = RedisSetting.IdleTimeout * time.Second
 }
 
 func mapTo(section string, v interface{}) {
