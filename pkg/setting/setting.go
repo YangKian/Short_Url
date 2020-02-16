@@ -27,6 +27,15 @@ type Database struct {
 
 var DatabaseSetting = &Database{}
 
+type IdGeneratorConfig struct {
+	TimeStamp int64
+	IdMaxBits int
+	NodeMaxBits int
+	Node int
+}
+
+var IdGeneratorSetting = &IdGeneratorConfig{}
+
 var cfg *ini.File
 
 func Start() {
@@ -37,6 +46,7 @@ func Start() {
 
 	mapTo("database", DatabaseSetting)
 	mapTo("server", ServerSetting)
+	mapTo("idgenerator", IdGeneratorSetting)
 }
 
 func mapTo(section string, v interface{}) {

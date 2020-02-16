@@ -11,7 +11,7 @@ type UrlCode struct {
 
 	Code  string `gorm:"code"`
 	Url   string `gorm:"url"`
-	Click int    `gorm:"clikc"`
+	Click int    `gorm:"click"`
 }
 
 //添加一个url

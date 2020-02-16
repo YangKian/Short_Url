@@ -8,6 +8,7 @@ import (
 	"shortUrl/constants"
 	"shortUrl/models"
 	"shortUrl/pkg/lru"
+	"shortUrl/pkg/setting"
 	"shortUrl/pkg/utils"
 	"sync"
 )
@@ -44,10 +45,17 @@ type shortUrlService struct {
 }
 
 func NewShortUrlService() Service {
+	idGenerator, err := utils.NewIdGenerator(setting.IdGeneratorSetting.TimeStamp,
+		setting.IdGeneratorSetting.Node,
+		setting.IdGeneratorSetting.IdMaxBits,
+		setting.IdGeneratorSetting.NodeMaxBits)
+	if err != nil {
+		log.Fatalf("start service err: %v\n", err)
+	}
 	return &shortUrlService{
 		urlCache:    lru.Constructors(100),
 		shortCache:  lru.Constructors(100),
-		idGenerator: utils.NewIdGenerator(),
+		idGenerator: idGenerator,
 	}
 }
 
@@ -131,7 +139,10 @@ func (s *shortUrlService) TransToUrl(c *gin.Context) {
 
 func (s *shortUrlService) codeGenerator(url string) (string, error) {
 	urlCode := models.UrlCode{}
-	urlId := s.idGenerator.GetId() //为当前url设置一个唯一id
+	urlId, err := s.idGenerator.GetId() //为当前url设置一个唯一id
+	if err != nil {
+		return "", err
+	}
 	//生成短域名
 	shortCode := utils.Transport(urlId)
 	//更新数据库
